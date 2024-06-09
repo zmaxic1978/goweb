@@ -36,10 +36,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authors := api.Group("/authors")
 		{
 			authors.POST("/", h.createAuthor)
-			authors.GET("/", h.getAllItems)
-			authors.GET("/:id", h.getItemById)
-			authors.PUT("/:id", h.updateItem)
-			authors.DELETE("/:item_id", h.deleteItem)
+			authors.GET("/", h.getAllAuthors)
+			authors.GET("/:id", h.getAuthorById)
+			authors.PUT("/:id", h.setAuthorById)
+			authors.DELETE("/:id", h.deleteAuthorById)
 		}
 	}
 
