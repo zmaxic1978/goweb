@@ -12,7 +12,7 @@ import (
 const (
 	salt      = "jsl$567jDF6%7Gas!d2#a21SD^?fgdTU&"
 	tokenSign = "GHTR576GHGGDHFSFST45"
-	tokenTTL  = 1 * time.Hour
+	tokenTTL  = 24 * time.Hour
 	loginErr  = "login or password is invalid. check and repeat again"
 )
 

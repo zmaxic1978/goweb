@@ -18,7 +18,7 @@ CREATE TABLE authors
 CREATE TABLE books
 (
     id       serial PRIMARY KEY,
-    mame     varchar(255) not null,
+    name     varchar(255) not null,
     authorid int REFERENCES authors(id) ON DELETE CASCADE NOT NULL,
     year     int          not null,
     isbn     varchar(255) not null

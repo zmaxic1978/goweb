@@ -1,16 +1,16 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	todo "github.com/zmaxic1978/goweb"
 )
 
 type AuthPostgres struct {
-	db *sqlx.DB
+	db *sql.DB
 }
 
-func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
+func NewAuthPostgres(db *sql.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
@@ -27,6 +27,6 @@ func (r *AuthPostgres) CreateUser(user todo.User) (int, error) {
 func (r *AuthPostgres) GetUser(login todo.Login) (todo.User, error) {
 	var user todo.User
 	query := fmt.Sprintf("SELECT id FROM %s where username = $1 and password_hash = $2", userTable)
-	err := r.db.Get(&user, query, login.Username, login.Password)
+	err := r.db.QueryRow(query, login.Username, login.Password).Scan(&user.Id)
 	return user, err
 }
