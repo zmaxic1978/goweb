@@ -7,6 +7,7 @@ import (
 	todo "github.com/zmaxic1978/goweb"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func (h *Handler) setBookAuthor(c *gin.Context) {
@@ -25,6 +26,11 @@ func (h *Handler) setBookAuthor(c *gin.Context) {
 	var bookauthor todo.BookAuthor
 	if err := c.BindJSON(&bookauthor); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errIncorrectBookFormat, err).Error())
+		return
+	}
+
+	if _, err := time.Parse("2006-01-02", bookauthor.Author.Birthday); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errInvalidDateFormat, err).Error())
 		return
 	}
 

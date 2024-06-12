@@ -17,24 +17,28 @@ const (
 
 type ApiPostgres struct {
 	db *sql.DB
+	tm *TransactionManager
 }
 
 func NewApiPostgres(db *sql.DB) *ApiPostgres {
-	return &ApiPostgres{db: db}
+	return &ApiPostgres{
+		db: db,
+		tm: NewTransactionManager(db),
+	}
 }
 
 // ----------------- Работа с авторами ----------------------
 
 func (r *ApiPostgres) CreateAuthor(author todo.Author) (int, error) {
 	// проверка на похожего автора
-	authorId, err := sameAuthorExists(r.db, author)
+	authorId, err := r.sameAuthorExists(author)
 	if err != nil {
 		return authorId, err
 	}
 
 	// добавляем нового автора
 	query := fmt.Sprintf("INSERT INTO %s (firstname, lastname, description, birthday) VALUES($1, $2, $3, $4) returning id", authorsTable)
-	row := r.db.QueryRow(query, author.FirstName, author.LastName, author.Description, author.Birthday)
+	row := r.tm.QueryRow(query, author.FirstName, author.LastName, author.Description, author.Birthday)
 	var id int
 	if err := row.Scan(&id); err != nil {
 		return 0, err
@@ -47,7 +51,7 @@ func (r *ApiPostgres) GetAllAuthors() ([]todo.Author, error) {
 	var list []todo.Author
 	// выбираем всех авторов
 	query := fmt.Sprintf("SELECT id, firstname, lastname, description, birthday FROM %s", authorsTable)
-	rows, err := r.db.Query(query)
+	rows, err := r.tm.Query(query)
 	if err != nil {
 		return nil, todo.DBError{Message: err.Error()}
 	}
@@ -73,14 +77,14 @@ func (r *ApiPostgres) GetAuthorById(id int) (todo.Author, error) {
 	var a todo.Author
 
 	// проверка на существующего автора
-	_, err := authorExists(r.db, id)
+	_, err := r.authorExists(id)
 	if err != nil {
 		return a, err
 	}
 
 	// выбираем нужного автора
 	query := fmt.Sprintf("SELECT id, firstname, lastname, description, birthday FROM %s WHERE id = $1", authorsTable)
-	row := r.db.QueryRow(query, id)
+	row := r.tm.QueryRow(query, id)
 	err = row.Scan(&a.Id, &a.FirstName, &a.LastName, &a.Description, &a.Birthday)
 	if err == sql.ErrNoRows {
 		return a, todo.NoDataFound{Message: errAuthorDoesntExists}
@@ -93,13 +97,13 @@ func (r *ApiPostgres) GetAuthorById(id int) (todo.Author, error) {
 
 func (r *ApiPostgres) SetAuthorById(author todo.Author) (int, error) {
 	// проверка на существующего автора
-	_, err := authorExists(r.db, author.Id)
+	_, err := r.authorExists(author.Id)
 	if err != nil {
 		return 0, err
 	}
 
 	// проверка на похожего автора
-	authorId, err := sameAuthorExists(r.db, author)
+	authorId, err := r.sameAuthorExists(author)
 	if err != nil {
 		return authorId, err
 	}
@@ -109,7 +113,7 @@ func (r *ApiPostgres) SetAuthorById(author todo.Author) (int, error) {
 		"UPDATE %s "+
 		"SET firstname = $1, lastname = $2, description = $3, birthday = $4 "+
 		"WHERE id = $5", authorsTable)
-	res, err := r.db.Exec(query, author.FirstName, author.LastName, author.Description, author.Birthday, author.Id)
+	res, err := r.tm.Exec(query, author.FirstName, author.LastName, author.Description, author.Birthday, author.Id)
 	if err != nil {
 		return 0, todo.DBError{Message: err.Error()}
 	}
@@ -123,14 +127,14 @@ func (r *ApiPostgres) SetAuthorById(author todo.Author) (int, error) {
 
 func (r *ApiPostgres) DeleteAuthorById(authorId int) (int, error) {
 	// проверка на существующего автора
-	_, err := authorExists(r.db, authorId)
+	_, err := r.authorExists(authorId)
 	if err != nil {
 		return 0, err
 	}
 
 	// удаляем автора
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", authorsTable)
-	res, err := r.db.Exec(query, authorId)
+	res, err := r.tm.Exec(query, authorId)
 	if err != nil {
 		return 0, todo.DBError{Message: err.Error()}
 	}
@@ -147,20 +151,20 @@ func (r *ApiPostgres) DeleteAuthorById(authorId int) (int, error) {
 func (r *ApiPostgres) CreateBook(book todo.Book) (int, error) {
 
 	// проверка на существующего автора
-	_, err := authorExists(r.db, book.AuthorId)
+	_, err := r.authorExists(book.AuthorId)
 	if err != nil {
 		return 0, err
 	}
 
 	// проверка на похожую книгу
-	bookId, err := sameBookExists(r.db, book)
+	bookId, err := r.sameBookExists(book)
 	if err != nil {
 		return bookId, err
 	}
 
 	// добавляем книгу
 	query := fmt.Sprintf("INSERT INTO %s (name, authorid, year, isbn) VALUES($1, $2, $3, $4) returning id", booksTable)
-	row := r.db.QueryRow(query, book.Name, book.AuthorId, book.Year, book.ISBN)
+	row := r.tm.QueryRow(query, book.Name, book.AuthorId, book.Year, book.ISBN)
 	var id int
 	if err := row.Scan(&id); err != nil {
 		return 0, err
@@ -172,7 +176,7 @@ func (r *ApiPostgres) GetAllBooks() ([]todo.Book, error) {
 	var list []todo.Book
 	// выбираем все книги
 	query := fmt.Sprintf("SELECT id, name, authorid, year, isbn FROM %s", booksTable)
-	rows, err := r.db.Query(query)
+	rows, err := r.tm.Query(query)
 	if err != nil {
 		return nil, todo.DBError{Message: err.Error()}
 	}
@@ -198,14 +202,14 @@ func (r *ApiPostgres) GetBookById(id int) (todo.Book, error) {
 	var book todo.Book
 
 	// проверка на существующую книгу
-	_, err := bookExists(r.db, id)
+	_, err := r.bookExists(id)
 	if err != nil {
 		return book, err
 	}
 
 	// выбираем нужную книгу
 	query := fmt.Sprintf("SELECT id, name, authorid, year, isbn FROM %s WHERE id = $1", booksTable)
-	row := r.db.QueryRow(query, id)
+	row := r.tm.QueryRow(query, id)
 	err = row.Scan(&book.Id, &book.Name, &book.AuthorId, &book.Year, &book.ISBN)
 	if err == sql.ErrNoRows {
 		return book, todo.NoDataFound{Message: errBookDoesntExists}
@@ -218,19 +222,19 @@ func (r *ApiPostgres) GetBookById(id int) (todo.Book, error) {
 
 func (r *ApiPostgres) SetBookById(book todo.Book) (int, error) {
 	// проверка на существующую книгу
-	_, err := bookExists(r.db, book.Id)
+	_, err := r.bookExists(book.Id)
 	if err != nil {
 		return 0, err
 	}
 
 	// проверка на существующего автора
-	_, err = authorExists(r.db, book.AuthorId)
+	_, err = r.authorExists(book.AuthorId)
 	if err != nil {
 		return 0, err
 	}
 
 	// проверка на похожую книгу
-	bookId, err := sameBookExists(r.db, book)
+	bookId, err := r.sameBookExists(book)
 	if err != nil {
 		return bookId, err
 	}
@@ -240,10 +244,11 @@ func (r *ApiPostgres) SetBookById(book todo.Book) (int, error) {
 		"UPDATE %s "+
 		"SET name = $1, authorid = $2, year = $3, isbn = $4 "+
 		"WHERE id = $5", booksTable)
-	res, err := r.db.Exec(query, book.Name, book.AuthorId, book.Year, book.ISBN, book.Id)
+	res, err := r.tm.Exec(query, book.Name, book.AuthorId, book.Year, book.ISBN, book.Id)
 	if err != nil {
 		return 0, todo.DBError{Message: err.Error()}
 	}
+
 	ra, err2 := res.RowsAffected()
 	if err2 != nil {
 		return 0, err2
@@ -254,14 +259,14 @@ func (r *ApiPostgres) SetBookById(book todo.Book) (int, error) {
 
 func (r *ApiPostgres) DeleteBookById(bookId int) (int, error) {
 	// проверка на существующую книгу
-	_, err := bookExists(r.db, bookId)
+	_, err := r.bookExists(bookId)
 	if err != nil {
 		return 0, err
 	}
 
 	// удаляем книгу
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", booksTable)
-	res, err := r.db.Exec(query, bookId)
+	res, err := r.tm.Exec(query, bookId)
 	if err != nil {
 		return 0, todo.DBError{Message: err.Error()}
 	}
@@ -278,24 +283,25 @@ func (r *ApiPostgres) DeleteBookById(bookId int) (int, error) {
 func (r *ApiPostgres) SetBookAuthorById(bookauthor todo.BookAuthor) (int, error) {
 
 	// начинаем транзакцию
-	tx, err := r.db.Begin()
+	err := r.tm.StartTransaction()
 	if err != nil {
 		return 0, err
 	}
 
 	_, err = r.SetBookById(bookauthor.Book)
+	err = errors.New("bla bla bla")
 	if err != nil {
-		tx.Rollback()
+		r.tm.RollBack()
 		return 0, err
 	}
 
 	_, err = r.SetAuthorById(bookauthor.Author)
 	if err != nil {
-		tx.Rollback()
+		r.tm.RollBack()
 		return 0, err
 	}
 
-	err = tx.Commit()
+	err = r.tm.Commit()
 	if err != nil {
 		return 0, err
 	}
@@ -303,9 +309,11 @@ func (r *ApiPostgres) SetBookAuthorById(bookauthor todo.BookAuthor) (int, error)
 	return 1, nil
 }
 
-func authorExists(db *sql.DB, authorId int) (int, error) {
+// ----------------- Вспомогательные функции -----------------------------
+
+func (r *ApiPostgres) authorExists(authorId int) (int, error) {
 	query := fmt.Sprintf("SELECT id FROM %s WHERE id = $1 ", authorsTable)
-	row := db.QueryRow(query, authorId)
+	row := r.tm.QueryRow(query, authorId)
 	var id int
 	err := row.Scan(&id)
 	if err == sql.ErrNoRows {
@@ -318,9 +326,9 @@ func authorExists(db *sql.DB, authorId int) (int, error) {
 	return id, nil
 }
 
-func bookExists(db *sql.DB, bookId int) (int, error) {
+func (r *ApiPostgres) bookExists(bookId int) (int, error) {
 	query := fmt.Sprintf("SELECT id FROM %s WHERE id = $1 ", booksTable)
-	row := db.QueryRow(query, bookId)
+	row := r.tm.QueryRow(query, bookId)
 	var id int
 	err := row.Scan(&id)
 	if err == sql.ErrNoRows {
@@ -333,7 +341,7 @@ func bookExists(db *sql.DB, bookId int) (int, error) {
 	return id, nil
 }
 
-func sameAuthorExists(db *sql.DB, author todo.Author) (int, error) {
+func (r *ApiPostgres) sameAuthorExists(author todo.Author) (int, error) {
 	// проверка на похожую книгу у автора
 	query := fmt.Sprintf(""+
 		"SELECT id "+
@@ -342,7 +350,7 @@ func sameAuthorExists(db *sql.DB, author todo.Author) (int, error) {
 		"  AND UPPER(lastname) LIKE CONCAT('%%',$2::text,'%%') "+
 		"  AND birthday = $3 "+
 		"  AND id <> $4", authorsTable)
-	row := db.QueryRow(query, strings.ToUpper(author.FirstName), strings.ToUpper(author.LastName), strings.ToUpper(author.Birthday), author.Id)
+	row := r.tm.QueryRow(query, strings.ToUpper(author.FirstName), strings.ToUpper(author.LastName), strings.ToUpper(author.Birthday), author.Id)
 	var id int
 	err := row.Scan(&id)
 	if err == nil && id > 0 {
@@ -355,7 +363,7 @@ func sameAuthorExists(db *sql.DB, author todo.Author) (int, error) {
 	return id, nil
 }
 
-func sameBookExists(db *sql.DB, book todo.Book) (int, error) {
+func (r *ApiPostgres) sameBookExists(book todo.Book) (int, error) {
 	// проверка на похожую книгу у автора
 	query := fmt.Sprintf(""+
 		"SELECT id "+
@@ -364,7 +372,7 @@ func sameBookExists(db *sql.DB, book todo.Book) (int, error) {
 		"  AND year = $2 "+
 		"  AND UPPER(isbn) LIKE CONCAT('%%',$3::text,'%%') "+
 		"  AND id <> $4", booksTable)
-	row := db.QueryRow(query, strings.ToUpper(book.Name), book.Year, strings.ToUpper(book.ISBN), book.Id)
+	row := r.tm.QueryRow(query, strings.ToUpper(book.Name), book.Year, strings.ToUpper(book.ISBN), book.Id)
 	var id int
 	err := row.Scan(&id)
 	if err == nil && id > 0 {

@@ -27,9 +27,20 @@ type Api interface {
 	SetBookAuthorById(bookauthor todo.BookAuthor) (int, error)
 }
 
+type Transaction interface {
+	StartTransaction() error
+	Commit() error
+	RollBack() error
+	QueryRow(query string, args ...any) *sql.Row
+	Query(query string, args ...any) (*sql.Rows, error)
+	ExecContext(query string, args ...any) (sql.Result, error)
+	PrepareContext(query string) (*sql.Stmt, error)
+}
+
 type Repository struct {
 	Authorization
 	Api
+	Transaction
 }
 
 func NewRepository(db *sql.DB) *Repository {

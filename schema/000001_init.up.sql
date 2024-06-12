@@ -12,7 +12,7 @@ CREATE TABLE authors
     firstname   varchar(255) not null,
     lastname    varchar(255) not null,
     description varchar(255) not null,
-    birthday    varchar(255) null
+    birthday    date null
 );
 
 CREATE TABLE books
