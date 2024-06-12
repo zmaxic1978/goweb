@@ -10,13 +10,13 @@ import (
 )
 
 func (h *Handler) setBookAuthor(c *gin.Context) {
-	bookId, err := strconv.Atoi(c.Param("bookId"))
+	bookId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errInvalidBookId, err).Error())
 		return
 	}
 
-	authorId, err := strconv.Atoi(c.Param("authorId"))
+	authorId, err := strconv.Atoi(c.Param("authorid"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errInvalidAuthorId, err).Error())
 		return
