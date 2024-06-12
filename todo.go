@@ -18,5 +18,5 @@ type Author struct {
 
 type BookAuthor struct {
 	Book   Book   `json:"book""`
-	Author Author `json:"Author"`
+	Author Author `json:"author"`
 }
