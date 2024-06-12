@@ -17,10 +17,10 @@ func NewTransactionManager(db *sql.DB) *TransactionManager {
 func (t *TransactionManager) StartTransaction() error {
 	tx, err := t.db.Begin()
 	if err != nil {
-		t.tx = tx
+		t.tx = nil
 		return err
 	}
-	t.tx = nil
+	t.tx = tx
 	return nil
 }
 

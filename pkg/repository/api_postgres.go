@@ -289,7 +289,6 @@ func (r *ApiPostgres) SetBookAuthorById(bookauthor todo.BookAuthor) (int, error)
 	}
 
 	_, err = r.SetBookById(bookauthor.Book)
-	err = errors.New("bla bla bla")
 	if err != nil {
 		r.tm.RollBack()
 		return 0, err
