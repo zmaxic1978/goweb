@@ -31,7 +31,10 @@
  - dbname - имя базы данных Postgres
  - sslmode - режим использования SSL
 
-####    2.3. Для локального запуска можно использовать команду: 
+####    2.3. Для локального запуска
+
+Необхдимо убедиться, что в config.yml параметр host указан как localhost.
+Далее можно использовать команду: 
 * ```make run``` 
 
       или последовательно выполнить команды:
@@ -43,9 +46,14 @@
 * ```go run cmd/main.go```
 
 ####    2.4. Для запуска в контейнере можно использовать команду:
-* ```make run``` 
+
+Необхдимо убедиться, что в config.yml параметр host указан как db.
+Далее можно использовать команду: 
+* ```make build``` 
 
       или выполнить команду сборки:
+* ```docker pull postgres &&```
+* ```docker pull golang &&```
 * ```docker-compose up -d --build```
 
 
@@ -272,9 +280,27 @@
   }
 ```
 
-###    3.4. Регистрация и логирование:
+###    3.4. Регистрация и логирование (опционально):
 
-**POST /auth/sign-in - логирование**
+**POST /auth/sign-up - регистрация пользователя**
+Обращение: http://localhost:55000/auth/sign-up
+Пример тела обращения:
+```json
+{
+    "name": "Bug Bunny",
+    "username": "rabbit",
+    "password": "12345"
+}
+```
+
+Получаемый ответ: 
+```json
+{
+    "id": 1
+}
+```
+
+**POST /auth/sign-in - логирование пользователя**
 Обращение: http://localhost:55000/auth/sign-in
 Пример тела обращения:
 ```json
@@ -285,7 +311,9 @@
 
 Получаемый ответ: 
 ```json
-  {
-    "информация обновлена: ": true
-  }
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1Njg4MDEsImlhdCI6MTcxODQ4MjQwMSwidXNlcl9pZCI6MX0.OcYq0clw4A152yWdKhxuL5F2uw5de8vRzhJgqe_STy4"
+}
 ```
+
+
