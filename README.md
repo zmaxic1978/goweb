@@ -113,7 +113,7 @@
             "year": 1951,
             "isbn": "123-343-5466"
         },
-        ....
+        ...
 	
     ]
    }
@@ -273,7 +273,7 @@
    }
 ```
 
-Получаемый ответ: <br>
+Получаемый ответ:<br>
 ```json
   {
     "информация обновлена: ": true
@@ -293,7 +293,7 @@
 }
 ```
 
-Получаемый ответ: <br>
+Получаемый ответ:<br>
 ```json
 {
     "id": 1
@@ -308,8 +308,9 @@
     "username": "rabbit",
     "password": "12345"
 }
+```
 
-Получаемый ответ: <br>
+Получаемый ответ:<br>
 ```json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1Njg4MDEsImlhdCI6MTcxODQ4MjQwMSwidXNlcl9pZCI6MX0.OcYq0clw4A152yWdKhxuL5F2uw5de8vRzhJgqe_STy4"
