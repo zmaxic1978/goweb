@@ -13,4 +13,4 @@ EXPOSE 55000
 ENV DB_USERNAME=postgres
 ENV DB_PASSWORD=12345
 
-CMD ["./main"]
+CMD ["./сmd"]
