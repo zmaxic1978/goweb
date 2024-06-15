@@ -20,6 +20,8 @@ services:
     build: .
     ports:
       - '55000:55000'
+    env_file:
+      - env.env
     depends_on:
       - db
 
