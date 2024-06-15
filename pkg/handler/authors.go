@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	todo "github.com/zmaxic1978/goweb"
+	todo2 "github.com/zmaxic1978/goweb/todo"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,7 +17,7 @@ const (
 )
 
 type responseGetAllAuthors struct {
-	Data []todo.Author `json:"data"`
+	Data []todo2.Author `json:"data"`
 }
 
 func (h *Handler) createAuthor(c *gin.Context) {
@@ -28,7 +28,7 @@ func (h *Handler) createAuthor(c *gin.Context) {
 		return
 	}*/
 
-	var input todo.Author
+	var input todo2.Author
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errIncorrectAuthorFormat, err).Error())
 		return
@@ -41,7 +41,7 @@ func (h *Handler) createAuthor(c *gin.Context) {
 
 	id, err := h.services.Api.CreateAuthor(input)
 	if err != nil {
-		if errors.As(err, new(todo.BadFormatError)) {
+		if errors.As(err, new(todo2.BadFormatError)) {
 			newErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -69,7 +69,7 @@ func (h *Handler) getAuthorById(c *gin.Context) {
 	}
 
 	author, err := h.services.Api.GetAuthorById(authorId)
-	if err != nil && errors.As(err, new(todo.NoDataFound)) {
+	if err != nil && errors.As(err, new(todo2.NoDataFound)) {
 		c.JSON(http.StatusBadRequest, "")
 		return
 	}
@@ -87,7 +87,7 @@ func (h *Handler) setAuthorById(c *gin.Context) {
 		return
 	}
 
-	var input todo.Author
+	var input todo2.Author
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errIncorrectAuthorFormat, err).Error())
 		return
@@ -101,7 +101,7 @@ func (h *Handler) setAuthorById(c *gin.Context) {
 	input.Id = authorId
 	cnt, err := h.services.Api.SetAuthorById(input)
 	if err != nil {
-		if errors.As(err, new(todo.BadFormatError)) || errors.As(err, new(todo.NoDataFound)) {
+		if errors.As(err, new(todo2.BadFormatError)) || errors.As(err, new(todo2.NoDataFound)) {
 			newErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -122,7 +122,7 @@ func (h *Handler) deleteAuthorById(c *gin.Context) {
 
 	cnt, err := h.services.Api.DeleteAuthorById(authorId)
 	if err != nil {
-		if errors.As(err, new(todo.BadFormatError)) || errors.As(err, new(todo.NoDataFound)) {
+		if errors.As(err, new(todo2.BadFormatError)) || errors.As(err, new(todo2.NoDataFound)) {
 			newErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}

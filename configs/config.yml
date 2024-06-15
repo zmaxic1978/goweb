@@ -2,7 +2,7 @@ port: "55000"
 
 db:
   host: "db"
-  port: "5436"
+  port: "5432"
   username: "postgres"
   password: "12345"
   dbname: "postgres"

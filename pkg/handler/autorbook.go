@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	todo "github.com/zmaxic1978/goweb"
+	todo2 "github.com/zmaxic1978/goweb/todo"
 	"net/http"
 	"strconv"
 	"time"
@@ -23,7 +23,7 @@ func (h *Handler) setBookAuthor(c *gin.Context) {
 		return
 	}
 
-	var bookauthor todo.BookAuthor
+	var bookauthor todo2.BookAuthor
 	if err := c.BindJSON(&bookauthor); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, fmt.Errorf("%s: %w", errIncorrectBookFormat, err).Error())
 		return
@@ -38,7 +38,7 @@ func (h *Handler) setBookAuthor(c *gin.Context) {
 	bookauthor.Author.Id = authorId
 	updated, err := h.services.Api.SetBookAuthorById(bookauthor)
 	if err != nil {
-		if errors.As(err, new(todo.BadFormatError)) || errors.As(err, new(todo.NoDataFound)) {
+		if errors.As(err, new(todo2.BadFormatError)) || errors.As(err, new(todo2.NoDataFound)) {
 			newErrorResponse(c, http.StatusBadRequest, err.Error())
 			return
 		}

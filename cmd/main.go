@@ -5,10 +5,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	todo "github.com/zmaxic1978/goweb"
 	"github.com/zmaxic1978/goweb/pkg/handler"
 	"github.com/zmaxic1978/goweb/pkg/repository"
 	"github.com/zmaxic1978/goweb/pkg/service"
+	"github.com/zmaxic1978/goweb/todo"
 	"os"
 )
 

@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	todo "github.com/zmaxic1978/goweb"
+	"github.com/zmaxic1978/goweb/todo"
 )
 
 type AuthPostgres struct {

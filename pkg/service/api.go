@@ -1,12 +1,8 @@
 package service
 
 import (
-	//"crypto/sha1"
-	//"fmt"
-	//"github.com/dgrijalva/jwt-go"
-	//todo "github.com/zmaxic1978/goweb"
-	todo "github.com/zmaxic1978/goweb"
 	"github.com/zmaxic1978/goweb/pkg/repository"
+	"github.com/zmaxic1978/goweb/todo"
 	//"time"
 )
 

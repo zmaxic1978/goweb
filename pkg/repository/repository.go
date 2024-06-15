@@ -2,29 +2,29 @@ package repository
 
 import (
 	"database/sql"
-	todo "github.com/zmaxic1978/goweb"
+	todo2 "github.com/zmaxic1978/goweb/todo"
 )
 
 type Authorization interface {
-	CreateUser(user todo.User) (int, error)
-	GetUser(login todo.Login) (todo.User, error)
+	CreateUser(user todo2.User) (int, error)
+	GetUser(login todo2.Login) (todo2.User, error)
 }
 
 type Api interface {
 	// ----------------- Работа с авторами ----------------------
-	CreateAuthor(author todo.Author) (int, error)
-	GetAllAuthors() ([]todo.Author, error)
-	GetAuthorById(id int) (todo.Author, error)
-	SetAuthorById(author todo.Author) (int, error)
+	CreateAuthor(author todo2.Author) (int, error)
+	GetAllAuthors() ([]todo2.Author, error)
+	GetAuthorById(id int) (todo2.Author, error)
+	SetAuthorById(author todo2.Author) (int, error)
 	DeleteAuthorById(authorId int) (int, error)
 	// ----------------- Работа с книгами -------------------------
-	CreateBook(book todo.Book) (int, error)
-	GetAllBooks() ([]todo.Book, error)
-	GetBookById(id int) (todo.Book, error)
-	SetBookById(book todo.Book) (int, error)
+	CreateBook(book todo2.Book) (int, error)
+	GetAllBooks() ([]todo2.Book, error)
+	GetBookById(id int) (todo2.Book, error)
+	SetBookById(book todo2.Book) (int, error)
 	DeleteBookById(bookId int) (int, error)
 	// ----------------- Работа с авторами и книгами -------------------------
-	SetBookAuthorById(bookauthor todo.BookAuthor) (int, error)
+	SetBookAuthorById(bookauthor todo2.BookAuthor) (int, error)
 }
 
 type Transaction interface {

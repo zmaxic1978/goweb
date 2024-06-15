@@ -4,8 +4,8 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	todo "github.com/zmaxic1978/goweb"
 	"github.com/zmaxic1978/goweb/pkg/repository"
+	todo2 "github.com/zmaxic1978/goweb/todo"
 	"time"
 )
 
@@ -29,17 +29,17 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUser(user todo.User) (int, error) {
+func (s *AuthService) CreateUser(user todo2.User) (int, error) {
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
 }
 
-func (s *AuthService) CreateToken(login todo.Login) (string, error) {
+func (s *AuthService) CreateToken(login todo2.Login) (string, error) {
 	login.Password = generatePasswordHash(login.Password)
 	user, err := s.repo.GetUser(login)
 	if err != nil {
 
-		return "", todo.AuthorizationError{Message: loginErr}
+		return "", todo2.AuthorizationError{Message: loginErr}
 	}
 
 	tokenClms := &tokenClaims{
@@ -48,7 +48,7 @@ func (s *AuthService) CreateToken(login todo.Login) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClms)
 	signedToken, err := token.SignedString([]byte(tokenSign))
 	if err != nil {
-		return "", todo.InternalError{Message: err.Error()}
+		return "", todo2.InternalError{Message: err.Error()}
 	}
 
 	return signedToken, nil
@@ -57,19 +57,19 @@ func (s *AuthService) CreateToken(login todo.Login) (string, error) {
 func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, todo.AuthorizationError{Message: "invalid signing method"}
+			return nil, todo2.AuthorizationError{Message: "invalid signing method"}
 		}
 
 		return []byte(tokenSign), nil
 	})
 
 	if err != nil {
-		return 0, todo.AuthorizationError{Message: err.Error()}
+		return 0, todo2.AuthorizationError{Message: err.Error()}
 	}
 
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, todo.AuthorizationError{Message: "invalid token claims type"}
+		return 0, todo2.AuthorizationError{Message: "invalid token claims type"}
 	}
 	return claims.UserId, nil
 }
