@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/zmaxic1978/goweb/pkg/service"
+	"github.com/zmaxic1978/goweb/internal/service"
 )
 
 type Handler struct {

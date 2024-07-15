@@ -4,7 +4,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/zmaxic1978/goweb/pkg/repository"
+	"github.com/zmaxic1978/goweb/internal/repository"
 	todo2 "github.com/zmaxic1978/goweb/todo"
 	"time"
 )

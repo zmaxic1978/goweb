@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/zmaxic1978/goweb/pkg/repository"
+	"github.com/zmaxic1978/goweb/internal/repository"
 	"github.com/zmaxic1978/goweb/todo"
 	//"time"
 )

@@ -5,9 +5,9 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/zmaxic1978/goweb/pkg/handler"
-	"github.com/zmaxic1978/goweb/pkg/repository"
-	"github.com/zmaxic1978/goweb/pkg/service"
+	"github.com/zmaxic1978/goweb/internal/handler"
+	"github.com/zmaxic1978/goweb/internal/repository"
+	"github.com/zmaxic1978/goweb/internal/service"
 	"github.com/zmaxic1978/goweb/todo"
 	"os"
 )
@@ -37,9 +37,8 @@ func main() {
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
-
-	srv := new(todo.Server)
-	err = srv.Run(viper.GetString("Port"), handlers.InitRoutes())
+	server := todo.NewServer(handlers.InitRoutes())
+	err = server.Run()
 	if err != nil {
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}
